@@ -11,7 +11,6 @@ module.exports = server => {
   server
     .route('/api/users')
     .post(encryptUserPW, createUser);
-    //.post(encryptUserPW, createUser);
     
   server.route('/api/login').post(compareUserPW, login);
 };

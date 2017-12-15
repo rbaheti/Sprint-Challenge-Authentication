@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/userModels');
 const { mysecret } = require('../../config');
-const BCRYPT_COST = 11;
+const saltRounds = 11;
 
 const authenticate = (req, res, next) => {
   const token = req.get('Authorization');
@@ -47,7 +47,7 @@ const encryptUserPW = (req, res, next) => {
     return;
   }
   bcrypt
-    .hash(password, BCRYPT_COST)
+    .hash(password, saltRounds)
     .then((pwd) => {
       const newUser = new User({username, password: pwd});
       req.user = { username, password: pwd };;
@@ -65,6 +65,20 @@ const compareUserPW = (req, res, next) => {
   // You'll need to find the user in your DB
   // Once you have the user, you'll need to pass the encrypted pw and the plaintext pw to the compare function
   // If the passwords match set the username on `req` ==> req.username = user.username; and call next();
+
+  User.findOne({username})
+    .then((user) => {
+      bcrypt
+        .compare(password, user.password)
+        .then((compareOutput) => {
+          if(!compareOutput) throw new Error;
+          req.username = user.username;
+          next();
+        })
+        .catch(err => {
+          throw new Error(err);
+        });
+    });
 };
 
 module.exports = {
