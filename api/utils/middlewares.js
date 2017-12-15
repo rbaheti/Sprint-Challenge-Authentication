@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/userModels');
 const { mysecret } = require('../../config');
-const saltRounds = 11;
+const SaltRounds = 11;
 
 const authenticate = (req, res, next) => {
   const token = req.get('Authorization');
@@ -47,10 +47,9 @@ const encryptUserPW = (req, res, next) => {
     return;
   }
   bcrypt
-    .hash(password, saltRounds)
-    .then((pwd) => {
-      const newUser = new User({username, password: pwd});
-      req.user = { username, password: pwd };;
+    .hash(password, SaltRounds)
+    .then((pw) => {
+      req.password = pw;
       next();
     })
     .catch((err) => {

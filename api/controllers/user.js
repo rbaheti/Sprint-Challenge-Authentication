@@ -4,14 +4,17 @@ const bcrypt = require('bcrypt');
 const createUser = (req, res) => {
   // there should be a user object set on req
   // use that req.user object to create a user and save it to our Mongo instance.
-  const { username, password } = req.body;
-  const newUser = new User({ username, password });
-  newUser
-    .save()
-    .then((newUser) => {
-      res.json(newUser)
-    })
-    .catch(err => res.status(500).json(err));
+
+  const { username } = req.body;
+  const password = req.password;
+  const user = new User({ username, password });
+  user.save((err, savedUser) => {
+    if (err) {
+      res.status(422);
+      res.json({'user name and password is required': err.message})
+    }
+    res.json(savedUser);
+  });
 };
 
 module.exports = {
